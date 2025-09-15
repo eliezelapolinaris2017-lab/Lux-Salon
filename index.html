@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agenda Salón – Citas & Servicios</title>
+<style>
+  :root{
+    --bg:#0f1722;
+    --ink:#e9f1f6;
+    --muted:#a6bdcc;
+    --panel:#122033;
+    --panel2:#0c1b2a;
+    --accent:#4cc2ff;
+    --ok:#32d296;
+    --warn:#ffd35a;
+    --danger:#ff5678;
+    --topbar:#101c2a;
+    --footer:#101c2a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    color:var(--ink);
+    background:var(--bg) center/cover fixed no-repeat;
+    font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+  }
+  .hidden{display:none !important}
+  .topbar{
+    position:sticky;top:0;z-index:10;
+    background:var(--topbar);border-bottom:1px solid #203041;
+    display:flex;align-items:center;gap:.75rem;
+    padding:.6rem .9rem;
+  }
+  .topbar img.logo{
+    height:28px;width:auto;object-fit:contain;border-radius:4px;background:#0003;padding:2px;
+  }
+  .topbar h1{font-size:15px;margin:0;font-weight:600;letter-spacing:.2px}
+  .topbar .spacer{flex:1}
+  .topbar .btn{padding:.45rem .7rem;border:1px solid #2a4157;background:#15263a;color:var(--ink);border-radius:8px;cursor:pointer}
+  .topbar .btn:hover{filter:brightness(1.08)}
+  .container{max-width:980px;margin:20px auto;padding:0 16px}
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid #213649;border-radius:14px;padding:16px;margin:14px 0;
+    box-shadow:0 10px 30px #0004;
+  }
+  h2{margin:.2rem 0 1rem 0;font-size:18px}
+  label{display:block;margin:.55rem 0 .3rem;color:var(--muted);font-size:13px}
+  input,select,textarea{
+    width:100%;padding:.6rem .7rem;border-radius:10px;border:1px solid #2a4157;
+    background:#0d1a28;color:var(--ink)
+  }
+  textarea{min-height:90px;resize:vertical}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+  .btn{
+    padding:.65rem .9rem;border-radius:10px;border:1px solid #2a4157;background:#15263a;color:var(--ink);
+    cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.45rem
+  }
+  .btn.ok{border-color:#2a5d4a;background:#103125}
+  .btn.warn{border-color:#6b5600;background:#2b2300}
+  .btn.danger{border-color:#6b2433;background:#2b0e13}
+  .btn.accent{border-color:#285a73;background:#103042}
+  .list{display:grid;gap:8px;margin-top:10px}
+  .item{
+    background:#0b1724;border:1px solid #22394b;border-radius:10px;padding:10px;display:flex;gap:10px;align-items:center;justify-content:space-between
+  }
+  .tag{font-size:12px;padding:.2rem .45rem;border:1px solid #2a4157;border-radius:999px;color:#b9d7ea}
+  .foot{
+    margin-top:30px;padding:16px;text-align:center;color:#9fb4c6;background:var(--footer);
+    border-top:1px solid #203041
+  }
+  .grid-min{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mini{font-size:12px;color:#b8c9d8}
+  .welcome{
+    text-align:center;padding:50px 16px
+  }
+  .welcome .logo{
+    height:80px;width:auto;object-fit:contain;border-radius:8px;background:#0003;padding:4px;margin-bottom:14px
+  }
+  .pill{display:inline-block;border:1px solid #2a4157;border-radius:999px;padding:.25rem .6rem;font-size:12px;color:#b9d7ea}
+  .toprow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+  .dash-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .kpi{background:#0b1724;border:1px solid #22394b;border-radius:12px;padding:12px}
+  .kpi b{font-size:22px;display:block;margin:.2rem 0}
+  .backbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .backbar .back{font-size:13px}
+  .thumb{height:70px;width:100%;object-fit:cover;border-radius:8px;border:1px solid #203041;background:#0003}
+  input[type="color"]{padding:0;height:42px}
+  .inline{display:flex;gap:8px;align-items:center}
+  .help{font-size:12px;color:#9fb4c6}
+  .warning{color:#ffc56d}
+  .right{float:right}
+  .nowrap{white-space:nowrap}
+  .center{text-align:center}
+  .mt8{margin-top:8px}
+  .mt12{margin-top:12px}
+  .mt16{margin-top:16px}
+  .mt20{margin-top:20px}
+  .small{font-size:12px;color:#a6bdcc}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <img class="logo" id="tbLogo" src="" alt="logo" />
+  <h1 id="tbTitle">Salón – Agenda & Servicios</h1>
+  <span class="spacer"></span>
+  <button class="btn" onclick="goView('dashboard')">Dashboard</button>
+  <button class="btn" onclick="goView('agenda')">Agendar</button>
+  <button class="btn" onclick="goView('disponibles')">Disponibles</button>
+  <button class="btn" onclick="goView('noshow')">No-Show</button>
+  <button class="btn" onclick="goView('cobros')">Cobros</button>
+  <button class="btn" onclick="goView('rendimiento')">Rendimiento</button>
+  <button class="btn" onclick="goView('cuadre')">Cuadre</button>
+  <button class="btn" onclick="goView('config')">Config</button>
+  <button class="btn" onclick="logout()">Salir</button>
+</div>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <section id="login" class="card">
+    <div class="welcome">
+      <img id="welcomeLogo" class="logo" src="" alt="logo">
+      <h2 id="welcomeTitle">Bienvenido(a)</h2>
+      <p class="mini">Inicia sesión para continuar.</p>
+    </div>
+    <div class="row">
+      <div>
+        <label>Usuario</label>
+        <input id="loginUser" placeholder="usuario" autocomplete="username">
+      </div>
+      <div>
+        <label>Contraseña</label>
+        <input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn ok" onclick="doLogin()">Entrar</button>
+      <span class="help">Por defecto: <b>admin / admin</b> (cámbialo en Configuración).</span>
+    </div>
+  </section>
+
+  <!-- BIENVENIDA -->
+  <section id="home" class="card hidden">
+    <div class="welcome">
+      <img id="homeLogo" class="logo" src="" alt="logo">
+      <h2 id="homeTitle">Salón de Belleza</h2>
+      <p class="mini">Usa el menú superior o el Dashboard.</p>
+      <div class="actions center mt12">
+        <button class="btn accent" onclick="goView('dashboard')">Ir al Dashboard</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="card hidden">
+    <div class="backbar">
+      <button class="btn back" onclick="goView('home')">⟵ Regresar</button>
+      <span class="pill">Hoy: <span id="todayStr"></span></span>
+    </div>
+    <h2>Dashboard</h2>
+    <div class="dash-cards mt8">
+      <div class="kpi">
+        <div class="mini">Citas de hoy</div>
+        <b id="kpiHoy">0</b>
+        <div class="mini" id="kpiProx"></div>
+      </div>
+      <div class="kpi">
+        <div class="mini">Mes (programadas)</div>
+        <b id="kpiMes">0</b>
+        <div class="mini">No-Show mes: <b id="kpiNoShow">0</b></div>
+      </div>
+      <div class="kpi">
+        <div class="mini">Ingresos (hoy)</div>
+        <b id="kpiIngresos">0.00</b>
+        <div class="mini">Tickets hoy: <b id="kpiTickets">0</b></div>
+      </div>
+      <div class="kpi">
+        <div class="mini">Técnicas activas</div>
+        <b id="kpiTecnicas">0</b>
+        <div class="mini"><span class="small">Edita en Configuración</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENDAR -->
+  <section id="agenda" class="card hidden">
+    <div class="backbar">
+      <button class="btn back" onclick="goView('dashboard')">⟵ Regresar</button>
+      <span class="pill">Agendar cita</span>
+    </div>
+    <h2>Nueva cita</h2>
+    <div class="row">
+      <div>
+        <label>Cliente (nombre)</label>
+        <input id="aNombre" placeholder="Nombre y apellido">
+      </div>
+      <div>
+        <label>Teléfono (para WhatsApp)</label>
+        <input id="aTel" placeholder="7871234567 (solo dígitos)">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Servicio</label>
+        <input id="aServicio" placeholder="Corte, color, blower…">
+      </div>
+      <div>
+        <label>Técnica / Estilista</label>
+        <select id="aTecnica"></select>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Fecha y hora</label>
+        <input id="aFecha" type="datetime-local">
+      </div>
+      <div>
+        <label>Duración (min)</label>
+        <input id="aDur" type="number" min="15" step="15" value="60">
+      </div>
+    </div>
+    <label>Notas</label>
+    <textarea id="aNotas" placeholder="Detalles, productos, etc."></textarea>
+
+    <div class="actions">
+      <button class="btn ok" onclick="crearCita()">Crear cita</button>
+      <a id="gcalLink" class="btn accent hidden" target="_blank">Abrir en Google Calendar</a>
+      <a id="waLink" class="btn ok hidden" target="_blank">Abrir WhatsApp</a>
+    </div>
+
+    <div class="mt16">
+      <h2>Citas programadas</h2>
+      <div class="list" id="listaCitas"></div>
+    </div>
+  </section>
+
+  <!-- DISPONIBLES -->
+  <section id="disponibles" class="card hidden">
+    <div class="backbar">
+      <button class="btn back" onclick="goView('dashboard')">⟵ Regresar</button>
+      <span class="pill">Fechas disponibles</span>
+    </div>
+    <div class="row">
+      <div>
+        <label>Día</label>
+        <input id="dDia" type="date">
+      </div>
+      <div>
+        <label>Duración deseada (min)</label>
+        <input id="dDur" type="number" min="15" step="15" value="60">
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="calcDisponibles()">Ver Disponibles</button>
+      <span class="help">Horario y bloqueos se editan en Configuración.</span>
+    </div>
+    <div class="list" id="listDisponibles"></div>
+  </section>
+
+  <!-- NO-SHOW -->
+  <section id="noshow" class="card hidden">
+    <div class="backbar">
+      <button class="btn back" onclick="goView('dashboard')">⟵ Regresar</button>
+      <span class="pill">No-Show</span>
+    </div>
+    <div class="list" id="listNoShow"></div>
+  </section>
+
+  <!-- RECORDATORIOS -->
+  <section id="rendimiento" class="card hidden">
+    <div class="backbar">
+      <button class="btn back" onclick="goView('dashboard')">⟵ Regresar</button>
+      <span class="pill">Rendimiento & Recordatorios</span>
+    </div>
+    <div class="row">
+      <div class="card" style="margin:0">
+        <h2>Enviar recordatorios 24h</h2>
+        <p class="mini">Listado de citas en las próximas ~24–36h. Pulsa para abrir WhatsApp con el mensaje.</p>
+        <div class="list" id="listRecordatorios"></div>
+      </div>
+      <div class="card" style="margin:0">
+        <h2>Métricas rápidas</h2>
+        <div class="grid-min">
+          <div><span class="mini">Citas (mes)</span><div class="tag mt8" id="mCitas">0</div></div>
+          <div><span class="mini">No-Show (mes)</span><div class="tag mt8" id="mNS">0</div></div>
+          <div><span class="mini">Ingresos (mes)</span><div class="tag mt8" id="mIng">0.00</div></div>
+          <div><span class="mini">Ticket Prom.</span><div class="tag mt8" id="mTP">0.00</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COBROS -->
+  <section id="cobros" class="card hidden">
+    <div class="backbar">
+      <button class="btn back" onclick="goView('dashboard')">⟵ Regresar</button>
+      <span class="pill">Cobros & Recibos</span>
+    </div>
+    <div class="row">
+      <div>
+        <label>Cliente</label>
+        <input id="cNombre" placeholder="Nombre del cliente">
+      </div>
+      <div>
+        <label>Teléfono (WhatsApp)</label>
+        <input id="cTel" placeholder="7871234567">
+      </div>
+    </div>
+    <div class="row3">
+      <div>
+        <label>Monto (USD)</label>
+        <input id="cMonto" type="number" min="0" step="0.01" value="0.00">
+      </div>
+      <div>
+        <label>Método</label>
+        <select id="cMetodo">
+          <option>ATH Móvil</option>
+          <option>Efectivo</option>
+          <option>Tarjeta</option>
+        </select>
+      </div>
+      <div>
+        <label>Referencia (opcional)</label>
+        <input id="cRef" placeholder="#transacción / 4 últimos">
+      </div>
+    </div>
+    <label>Concepto</label>
+    <input id="cConcepto" placeholder="Servicio(s) pagados">
+    <div class="actions">
+      <button class="btn ok" onclick="guardarCobro()">Guardar cobro</button>
+      <button class="btn accent" onclick="imprimirRecibo()">Exportar recibo (PDF)</button>
+      <a id="waCobroLink" class="btn ok hidden" target="_blank">Enviar por WhatsApp</a>
+    </div>
+
+    <h2 class="mt20">Historial reciente</h2>
+    <div class="list" id="listCobros"></div>
+  </section>
+
+  <!-- CUADRE -->
+  <section id="cuadre" class="card hidden">
+    <div class="backbar">
+      <button class="btn back" onclick="goView('dashboard')">⟵ Regresar</button>
+      <span class="pill">Hoja de Cuadre Diario</span>
+    </div>
+    <div class="row">
+      <div>
+        <label>URL de Google Sheets (cuadre)</label>
+        <input id="cfgSheetURL" placeholder="https://docs.google.com/..." />
+      </div>
+      <div>
+        <label>URL de Google Form (opcional)</label>
+        <input id="cfgFormURL" placeholder="https://docs.google.com/forms/..." />
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn accent" onclick="abrirCuadre()">Abrir Google Sheets</button>
+      <button class="btn" onclick="abrirForm()">Abrir Google Form</button>
+      <span class="help">Configura tus enlaces y quedarán guardados.</span>
+    </div>
+  </section>
+
+  <!-- CONFIGURACIÓN -->
+  <section id="config" class="card hidden">
+    <div class="backbar">
+      <button class="btn back" onclick="goView('dashboard')">⟵ Regresar</button>
+      <span class="pill">Configuración</span>
+    </div>
+
+    <h2>Identidad y UI</h2>
+    <div class="row">
+      <div>
+        <label>Título Topbar</label>
+        <input id="cfgTopTitle" placeholder="Ej. Cynthia’s Salón – Agenda">
+      </div>
+      <div>
+        <label>Texto Footer</label>
+        <input id="cfgFooter" placeholder="© Año • Teléfono • Web">
+      </div>
+    </div>
+    <div class="row3">
+      <div>
+        <label>Color Fondo (body)</label>
+        <input id="cfgBg" type="color" value="#0f1722">
+      </div>
+      <div>
+        <label>Color Topbar</label>
+        <input id="cfgTopbar" type="color" value="#101c2a">
+      </div>
+      <div>
+        <label>Color Footer</label>
+        <input id="cfgFootColor" type="color" value="#101c2a">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Logo (PNG/JPG)</label>
+        <input id="cfgLogo" type="file" accept="image/*" />
+        <img id="cfgLogoPrev" class="thumb mt8" alt="">
+      </div>
+      <div>
+        <label>Fondo (imagen transparente opcional)</label>
+        <input id="cfgBgImg" type="file" accept="image/*" />
+        <img id="cfgBgPrev" class="thumb mt8" alt="">
+      </div>
+    </div>
+
+    <h2 class="mt12">Operación</h2>
+    <div class="row3">
+      <div>
+        <label>Horario inicio (HH:MM)</label>
+        <input id="cfgHIni" type="time" value="08:00">
+      </div>
+      <div>
+        <label>Horario fin (HH:MM)</label>
+        <input id="cfgHFin" type="time" value="17:00">
+      </div>
+      <div>
+        <label>Intervalo (min)</label>
+        <input id="cfgStep" type="number" min="15" step="15" value="30">
+      </div>
+    </div>
+    <div>
+      <label>Técnicas / Estilistas (una por línea)</label>
+      <textarea id="cfgTecnicas" placeholder="Ej. Cynthia&#10;María&#10;Laura"></textarea>
+    </div>
+    <div class="row">
+      <div>
+        <label>Plantilla WhatsApp (agenda)</label>
+        <textarea id="cfgTplWA">¡Hola {NOMBRE}! Tu cita en {NEGOCIO} quedó para el {FECHA} a las {HORA} con {TECNICA}. Ubicación: {UBICACION}. Si deseas reprogramar, responde este mensaje. ¡Gracias!</textarea>
+      </div>
+      <div>
+        <label>Plantilla WhatsApp (recordatorio 24h)</label>
+        <textarea id="cfgTplREM">Recordatorio: {NOMBRE}, nos vemos mañana {FECHA} a las {HORA} en {NEGOCIO} con {TECNICA}. Si necesitas cambiar la hora, avísanos por aquí.</textarea>
+      </div>
+    </div>
+
+    <h2 class="mt12">Accesos</h2>
+    <div class="row">
+      <div>
+        <label>Nombre de negocio</label>
+        <input id="cfgNegocio" placeholder="Nombre comercial">
+      </div>
+      <div>
+        <label>Ubicación corta (para mensajes)</label>
+        <input id="cfgUbic" placeholder="Trujillo Alto, PR">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Usuario</label>
+        <input id="cfgUser" placeholder="nuevo usuario">
+      </div>
+      <div>
+        <label>Contraseña</label>
+        <input id="cfgPass" type="password" placeholder="nueva contraseña">
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn ok" onclick="guardarConfig()">Guardar cambios</button>
+      <button class="btn danger" onclick="resetDemo()">Reiniciar (demo)</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="foot" id="appFooter">© 2025 • Tel. 000-000-0000 • sitio.com</div>
+
+  <!-- RECIBO (modo impresión) -->
+  <div id="reciboPrint" class="hidden">
+    <div style="max-width:700px;margin:0 auto;padding:24px;font:14px/1.5 system-ui;color:#000">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <img id="reciboLogo" style="height:40px" />
+        <div>
+          <div id="reciboNegocio" style="font-weight:700">Salón</div>
+          <div id="reciboFooter" style="font-size:12px;color:#333"></div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:12px">Fecha: <span id="reciboFecha"></span></div>
+          <div style="font-size:12px">No.: <span id="reciboNo"></span></div>
+        </div>
+      </div>
+      <hr>
+      <div><b>Cliente:</b> <span id="reciboCliente"></span></div>
+      <div><b>Tel.:</b> <span id="reciboTel"></span></div>
+      <div class="mt8"><b>Concepto:</b> <span id="reciboConcepto"></span></div>
+      <div class="mt8"><b>Método:</b> <span id="reciboMetodo"></span></div>
+      <div class="mt8"><b>Referencia:</b> <span id="reciboRef"></span></div>
+      <div class="mt12" style="font-size:18px"><b>Total: $<span id="reciboTotal"></span></b></div>
+      <hr class="mt12">
+      <div style="font-size:12px;color:#444">Gracias por su preferencia.</div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+/* ========= PERSISTENCIA ========= */
+const LS = {
+  cfg: 'salon_cfg_v1',
+  citas: 'salon_citas_v1',
+  cobros: 'salon_cobros_v1',
+  noshow: 'salon_noshow_v1',
+  auth: 'salon_auth_v1'
+};
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+function nowISO(){ return new Date().toISOString(); }
+function fmtFecha(dt){
+  const d = new Date(dt);
+  return d.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+}
+function fmtHora(dt){
+  const d = new Date(dt);
+  return d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+}
+function pad(n,l=2){ return String(n).padStart(l,'0'); }
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function toUSD(n){ return Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+let CFG = {
+  topTitle:'Salón – Agenda & Servicios',
+  footer:'© 2025 • (787) 000-0000 • salon.com',
+  colors:{ bg:'#0f1722', topbar:'#101c2a', footer:'#101c2a' },
+  logo:'', bgImg:'',
+  horario:{ ini:'08:00', fin:'17:00', step:30 },
+  tecnicas:['Cynthia','María','Laura'],
+  tplWA:'¡Hola {NOMBRE}! Tu cita en {NEGOCIO} quedó para el {FECHA} a las {HORA} con {TECNICA}. Ubicación: {UBICACION}. Si deseas reprogramar, responde este mensaje. ¡Gracias!',
+  tplREM:'Recordatorio: {NOMBRE}, nos vemos mañana {FECHA} a las {HORA} en {NEGOCIO} con {TECNICA}. Si necesitas cambiar la hora, avísanos por aquí.',
+  negocio:'Salón de Belleza',
+  ubic:'Trujillo Alto, PR',
+  sheetURL:'', formURL:''
+};
+let AUTH = { user:'admin', pass:'admin' };
+
+function loadAll(){
+  try{
+    const cfg = localStorage.getItem(LS.cfg);
+    if(cfg){ CFG = {...CFG, ...JSON.parse(cfg)}; }
+    const auth = localStorage.getItem(LS.auth);
+    if(auth){ AUTH = {...AUTH, ...JSON.parse(auth)}; }
+  }catch(e){ console.warn(e); }
+}
+function saveCfg(){
+  localStorage.setItem(LS.cfg, JSON.stringify(CFG));
+}
+function saveAuth(){
+  localStorage.setItem(LS.auth, JSON.stringify(AUTH));
+}
+function getCitas(){ return JSON.parse(localStorage.getItem(LS.citas)||'[]'); }
+function setCitas(v){ localStorage.setItem(LS.citas, JSON.stringify(v)); }
+function getCobros(){ return JSON.parse(localStorage.getItem(LS.cobros)||'[]'); }
+function setCobros(v){ localStorage.setItem(LS.cobros, JSON.stringify(v)); }
+function getNoShow(){ return JSON.parse(localStorage.getItem(LS.noshow)||'[]'); }
+function setNoShow(v){ localStorage.setItem(LS.noshow, JSON.stringify(v)); }
+
+/* ========= NAVEGACIÓN ========= */
+let currentView = 'login';
+function goView(id){
+  ['login','home','dashboard','agenda','disponibles','noshow','rendimiento','cobros','cuadre','config']
+    .forEach(v => $('#'+v).classList.add('hidden'));
+  $('#'+id).classList.remove('hidden');
+  currentView = id;
+  if(id==='dashboard') renderDashboard();
+  if(id==='agenda') { renderTecnicas(); renderCitas(); $('#gcalLink').classList.add('hidden'); $('#waLink').classList.add('hidden'); }
+  if(id==='disponibles') { $('#dDia').valueAsDate = new Date(); $('#listDisponibles').innerHTML=''; }
+  if(id==='noshow') renderNoShow();
+  if(id==='rendimiento') renderRendimiento();
+  if(id==='cobros') renderCobros();
+  if(id==='cuadre') { $('#cfgSheetURL').value = CFG.sheetURL||''; $('#cfgFormURL').value = CFG.formURL||''; }
+  if(id==='config') loadConfigForm();
+}
+function logout(){ goView('login'); }
+
+/* ========= LOGIN ========= */
+function applyBrand(){
+  $('#tbTitle').textContent = CFG.topTitle;
+  $('#appFooter').textContent = CFG.footer;
+  document.documentElement.style.setProperty('--bg', CFG.colors.bg);
+  document.documentElement.style.setProperty('--topbar', CFG.colors.topbar);
+  document.documentElement.style.setProperty('--footer', CFG.colors.footer);
+  if(CFG.logo){
+    $('#tbLogo').src = CFG.logo;
+    $('#welcomeLogo').src = CFG.logo;
+    $('#homeLogo').src = CFG.logo;
+  }
+  if(CFG.bgImg){
+    document.body.style.backgroundImage = `url(${CFG.bgImg})`;
+  } else {
+    document.body.style.backgroundImage = 'none';
+  }
+  $('#homeTitle').textContent = CFG.negocio||'Salón';
+  $('#welcomeTitle').textContent = CFG.negocio||'Bienvenido(a)';
+}
+function doLogin(){
+  const u = $('#loginUser').value.trim();
+  const p = $('#loginPass').value.trim();
+  if(u===AUTH.user && p===AUTH.pass){
+    $('#login').classList.add('hidden');
+    $('#home').classList.remove('hidden');
+  } else {
+    alert('Usuario o contraseña incorrectos.');
+  }
+}
+
+/* ========= CONFIG ========= */
+function loadConfigForm(){
+  $('#cfgTopTitle').value = CFG.topTitle;
+  $('#cfgFooter').value = CFG.footer;
+  $('#cfgBg').value = rgbToHex(CFG.colors.bg);
+  $('#cfgTopbar').value = rgbToHex(CFG.colors.topbar);
+  $('#cfgFootColor').value = rgbToHex(CFG.colors.footer);
+  $('#cfgHIni').value = CFG.horario.ini;
+  $('#cfgHFin').value = CFG.horario.fin;
+  $('#cfgStep').value = CFG.horario.step;
+  $('#cfgTecnicas').value = (CFG.tecnicas||[]).join('\n');
+  $('#cfgTplWA').value = CFG.tplWA;
+  $('#cfgTplREM').value = CFG.tplREM;
+  $('#cfgNegocio').value = CFG.negocio;
+  $('#cfgUbic').value = CFG.ubic;
+  $('#cfgUser').value = AUTH.user;
+  $('#cfgPass').value = AUTH.pass;
+  $('#cfgLogoPrev').src = CFG.logo||'';
+  $('#cfgBgPrev').src = CFG.bgImg||'';
+}
+function guardarConfig(){
+  CFG.topTitle = $('#cfgTopTitle').value.trim()||CFG.topTitle;
+  CFG.footer = $('#cfgFooter').value.trim()||CFG.footer;
+  CFG.colors.bg = $('#cfgBg').value;
+  CFG.colors.topbar = $('#cfgTopbar').value;
+  CFG.colors.footer = $('#cfgFootColor').value;
+  CFG.horario.ini = $('#cfgHIni').value;
+  CFG.horario.fin = $('#cfgHFin').value;
+  CFG.horario.step = parseInt($('#cfgStep').value||30,10);
+  CFG.tecnicas = $('#cfgTecnicas').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  CFG.tplWA = $('#cfgTplWA').value;
+  CFG.tplREM = $('#cfgTplREM').value;
+  CFG.negocio = $('#cfgNegocio').value.trim()||CFG.negocio;
+  CFG.ubic = $('#cfgUbic').value.trim()||CFG.ubic;
+  AUTH.user = $('#cfgUser').value.trim()||AUTH.user;
+  AUTH.pass = $('#cfgPass').value.trim()||AUTH.pass;
+  CFG.sheetURL = $('#cfgSheetURL').value.trim()||CFG.sheetURL;
+  CFG.formURL = $('#cfgFormURL').value.trim()||CFG.formURL;
+  saveCfg(); saveAuth();
+  applyBrand();
+  alert('Configuración guardada.');
+}
+
+$('#cfgLogo')?.addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  const b64 = await fileToDataURL(f); CFG.logo = b64; saveCfg();
+  $('#cfgLogoPrev').src = b64; applyBrand();
+});
+$('#cfgBgImg')?.addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  const b64 = await fileToDataURL(f); CFG.bgImg = b64; saveCfg();
+  $('#cfgBgPrev').src = b64; applyBrand();
+});
+
+function fileToDataURL(file){
+  return new Promise(res=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.readAsDataURL(file);
+  });
+}
+function rgbToHex(v){
+  if(/^#/.test(v)) return v;
+  const ctx = document.createElement('canvas').getContext('2d');
+  ctx.fillStyle = v;
+  const rgb = ctx.fillStyle; // e.g. rgb(15, 23, 34)
+  const m = rgb.match(/\d+/g)||[0,0,0];
+  return '#'+m.slice(0,3).map(x=>pad(Number(x).toString(16),2)).join('');
+}
+function resetDemo(){
+  if(confirm('Esto borrará datos locales (citas, cobros, config). ¿Continuar?')){
+    Object.values(LS).forEach(k=>localStorage.removeItem(k));
+    location.reload();
+  }
+}
+
+/* ========= AGENDA ========= */
+function renderTecnicas(){
+  const sel = $('#aTecnica'); sel.innerHTML = '';
+  (CFG.tecnicas||[]).forEach(t=>{
+    const o = document.createElement('option'); o.textContent = t; sel.appendChild(o);
+  });
+}
+function crearCita(){
+  const nombre = $('#aNombre').value.trim();
+  const tel = $('#aTel').value.replace(/\D/g,'');
+  const servicio = $('#aServicio').value.trim();
+  const tecnica = $('#aTecnica').value;
+  const fecha = $('#aFecha').value;
+  const dur = parseInt($('#aDur').value||60,10);
+  const notas = $('#aNotas').value.trim();
+
+  if(!nombre || !fecha){ alert('Nombre y fecha/hora son obligatorios.'); return; }
+
+  const id = uid();
+  const cita = { id, nombre, tel, servicio, tecnica, fecha, dur, notas, estado:'programada', ts:nowISO() };
+  const arr = getCitas(); arr.push(cita); setCitas(arr);
+
+  // Enlace a Google Calendar (template)
+  const start = new Date(fecha);
+  const end = new Date(start.getTime() + dur*60000);
+  const fmt = d => d.toISOString().replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z');
+  const gcParams = new URLSearchParams({
+    action:'TEMPLATE',
+    text: `${servicio||'Cita'} – ${nombre}`,
+    dates: `${fmt(start)}/${fmt(end)}`,
+    details: `Servicio: ${servicio}\nTécnica: ${tecnica}\nNotas: ${notas}`,
+    location: CFG.ubic||'',
+  });
+  const gcalURL = `https://calendar.google.com/calendar/render?${gcParams.toString()}`;
+
+  // WhatsApp agenda
+  const msg = CFG.tplWA
+    .replaceAll('{NOMBRE}', nombre)
+    .replaceAll('{NEGOCIO}', CFG.negocio)
+    .replaceAll('{FECHA}', fmtFecha(fecha))
+    .replaceAll('{HORA}', fmtHora(fecha))
+    .replaceAll('{TECNICA}', tecnica)
+    .replaceAll('{UBICACION}', CFG.ubic);
+  const waURL = `https://wa.me/${tel||''}?text=${encodeURIComponent(msg)}`;
+
+  const g = $('#gcalLink'); g.href = gcalURL; g.classList.remove('hidden');
+  const w = $('#waLink'); w.href = waURL; w.classList.remove('hidden');
+
+  renderCitas(); renderDashboard(); renderRendimiento();
+  alert('Cita creada. Ahora puedes abrir Google Calendar y/o WhatsApp.');
+}
+function renderCitas(){
+  const list = $('#listaCitas'); list.innerHTML = '';
+  const arr = getCitas().sort((a,b)=> new Date(a.fecha) - new Date(b.fecha));
+  if(!arr.length){ list.innerHTML = '<div class="mini">Aún no hay citas.</div>'; return; }
+  arr.forEach(c=>{
+    const div = document.createElement('div'); div.className='item';
+    const left = document.createElement('div');
+    left.innerHTML = `<b>${c.nombre}</b> <span class="mini">(${c.servicio||'—'})</span><br>
+      <span class="mini">${fmtFecha(c.fecha)} ${fmtHora(c.fecha)} • ${c.tecnica}</span>`;
+    const right = document.createElement('div'); right.className='inline';
+    const tag = document.createElement('span'); tag.className='tag'; tag.textContent = c.estado;
+    const btnWA = document.createElement('a'); btnWA.className='btn ok'; btnWA.textContent='WhatsApp';
+    const tel = (c.tel||'').replace(/\D/g,'');
+    btnWA.target='_blank';
+    const msg = CFG.tplWA.replaceAll('{NOMBRE}', c.nombre)
+      .replaceAll('{NEGOCIO}', CFG.negocio).replaceAll('{FECHA}', fmtFecha(c.fecha))
+      .replaceAll('{HORA}', fmtHora(c.fecha)).replaceAll('{TECNICA}', c.tecnica).replaceAll('{UBICACION}', CFG.ubic);
+    btnWA.href = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+    const btnNS = document.createElement('button'); btnNS.className='btn warn'; btnNS.textContent='Marcar No-Show';
+    btnNS.onclick=()=>marcarNoShow(c.id);
+    const btnDel = document.createElement('button'); btnDel.className='btn danger'; btnDel.textContent='Eliminar';
+    btnDel.onclick=()=>eliminarCita(c.id);
+    right.append(tag, btnWA, btnNS, btnDel);
+    div.append(left,right);
+    list.appendChild(div);
+  });
+}
+function marcarNoShow(id){
+  const arr = getCitas();
+  const i = arr.findIndex(x=>x.id===id);
+  if(i>=0){
+    const c = arr.splice(i,1)[0];
+    c.estado = 'no-show';
+    const ns = getNoShow(); ns.push(c); setNoShow(ns);
+    setCitas(arr);
+    renderCitas(); renderNoShow(); renderDashboard(); renderRendimiento();
+  }
+}
+function eliminarCita(id){
+  if(!confirm('¿Eliminar esta cita?')) return;
+  const arr = getCitas().filter(x=>x.id!==id); setCitas(arr);
+  renderCitas(); renderDashboard(); renderRendimiento();
+}
+
+/* ========= DISPONIBLES ========= */
+function calcDisponibles(){
+  const day = $('#dDia').value;
+  const dur = parseInt($('#dDur').value||60,10);
+  if(!day){ alert('Selecciona un día.'); return; }
+  const startStr = `${day}T${CFG.horario.ini}:00`;
+  const endStr = `${day}T${CFG.horario.fin}:00`;
+  const step = CFG.horario.step;
+
+  const taken = getCitas()
+    .filter(c => c.estado==='programada' && c.fecha.startsWith(day))
+    .map(c=>({ini:new Date(c.fecha), fin:new Date(new Date(c.fecha).getTime()+c.dur*60000)}));
+
+  const slots = [];
+  for(let t=new Date(startStr); t<new Date(endStr); t = new Date(t.getTime()+step*60000)){
+    const tEnd = new Date(t.getTime()+dur*60000);
+    if(tEnd>new Date(endStr)) break;
+    const overl = taken.some(x=> !(tEnd<=x.ini || t>=x.fin));
+    if(!overl) slots.push({ini:new Date(t), fin:tEnd});
+  }
+  const list = $('#listDisponibles'); list.innerHTML='';
+  if(!slots.length){ list.innerHTML='<div class="mini">No hay espacios con esa duración.</div>'; return; }
+  slots.forEach(s=>{
+    const div = document.createElement('div'); div.className='item';
+    div.innerHTML = `<div><b>${fmtHora(s.ini)}</b> – ${fmtHora(s.fin)}</div>`;
+    const b = document.createElement('button'); b.className='btn ok'; b.textContent='Usar';
+    b.onclick=()=>{
+      goView('agenda');
+      $('#aFecha').value = s.ini.toISOString().slice(0,16);
+    };
+    div.appendChild(b);
+    list.appendChild(div);
+  });
+}
+
+/* ========= NO-SHOW ========= */
+function renderNoShow(){
+  const list = $('#listNoShow'); list.innerHTML='';
+  const arr = getNoShow().sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  if(!arr.length){ list.innerHTML='<div class="mini">Sin registros No-Show.</div>'; return; }
+  arr.forEach(c=>{
+    const div = document.createElement('div'); div.className='item';
+    div.innerHTML = `<div><b>${c.nombre}</b> <span class="mini">${fmtFecha(c.fecha)} ${fmtHora(c.fecha)} • ${c.tecnica} • ${c.servicio||''}</span></div>`;
+    const del = document.createElement('button'); del.className='btn danger'; del.textContent='Eliminar';
+    del.onclick=()=>{
+      const ns = getNoShow().filter(x=>x.id!==c.id); setNoShow(ns); renderNoShow();
+    };
+    div.appendChild(del);
+    list.appendChild(div);
+  });
+}
+
+/* ========= RECORDATORIOS & MÉTRICAS ========= */
+function proximas24h(){
+  const now = Date.now();
+  const max = now + 36*3600*1000; // ventana generosa
+  return getCitas().filter(c=>{
+    const t = new Date(c.fecha).getTime();
+    return c.estado==='programada' && t>now && t<=max;
+  }).sort((a,b)=> new Date(a.fecha)-new Date(b.fecha));
+}
+function renderRendimiento(){
+  const list = $('#listRecordatorios'); list.innerHTML='';
+  const arr = proximas24h();
+  if(!arr.length){ list.innerHTML='<div class="mini">No hay citas dentro de las próximas 24–36h.</div>'; }
+  arr.forEach(c=>{
+    const tel = (c.tel||'').replace(/\D/g,'');
+    const msg = CFG.tplREM.replaceAll('{NOMBRE}', c.nombre)
+      .replaceAll('{NEGOCIO}', CFG.negocio).replaceAll('{FECHA}', fmtFecha(c.fecha))
+      .replaceAll('{HORA}', fmtHora(c.fecha)).replaceAll('{TECNICA}', c.tecnica).replaceAll('{UBICACION}', CFG.ubic);
+    const a = document.createElement('a'); a.className='item'; a.target='_blank';
+    a.href = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+    a.innerHTML = `<div><b>${c.nombre}</b> <span class="mini">${fmtFecha(c.fecha)} ${fmtHora(c.fecha)} • ${c.tecnica}</span></div>
+                   <span class="btn ok">WhatsApp</span>`;
+    list.appendChild(a);
+  });
+
+  // métricas mensuales
+  const citas = getCitas();
+  const cobros = getCobros();
+  const m = new Date().getMonth(), y = new Date().getFullYear();
+  const citasMes = citas.filter(c=> new Date(c.fecha).getMonth()===m && new Date(c.fecha).getFullYear()===y );
+  const noshowMes = getNoShow().filter(c=> new Date(c.fecha).getMonth()===m && new Date(c.fecha).getFullYear()===y );
+  const ingresosMes = cobros.filter(c=> {
+    const d = new Date(c.ts||c.fecha);
+    return d.getMonth()===m && d.getFullYear()===y;
+  }).reduce((s,x)=> s+Number(x.monto||0),0);
+  const ticketsMes = cobros.filter(c=>{
+    const d = new Date(c.ts||c.fecha);
+    return d.getMonth()===m && d.getFullYear()===y;
+  }).length;
+  $('#mCitas').textContent = citasMes.length;
+  $('#mNS').textContent = noshowMes.length;
+  $('#mIng').textContent = toUSD(ingresosMes);
+  $('#mTP').textContent = toUSD(ticketsMes ? ingresosMes/ticketsMes : 0);
+}
+
+/* ========= DASHBOARD KPI ========= */
+function renderDashboard(){
+  $('#todayStr').textContent = new Date().toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const today = new Date().toISOString().slice(0,10);
+  const citas = getCitas();
+  const hoy = citas.filter(c=> c.fecha.startsWith(today));
+  $('#kpiHoy').textContent = hoy.length;
+  const prox = citas.filter(c=> new Date(c.fecha)>new Date()).sort((a,b)=> new Date(a.fecha)-new Date(b.fecha))[0];
+  $('#kpiProx').textContent = prox ? `Próxima: ${fmtHora(prox.fecha)} (${prox.nombre})` : 'Sin próximas';
+  const m = new Date().getMonth(), y=new Date().getFullYear();
+  $('#kpiMes').textContent = citas.filter(c=> new Date(c.fecha).getMonth()===m && new Date(c.fecha).getFullYear()===y).length;
+  $('#kpiNoShow').textContent = getNoShow().filter(c=> new Date(c.fecha).getMonth()===m && new Date(c.fecha).getFullYear()===y).length;
+
+  const cobros = getCobros();
+  const hoyCob = cobros.filter(c=> (c.ts||'').slice(0,10)===today);
+  const sumHoy = hoyCob.reduce((s,x)=> s+Number(x.monto||0),0);
+  $('#kpiIngresos').textContent = toUSD(sumHoy);
+  $('#kpiTickets').textContent = hoyCob.length;
+  $('#kpiTecnicas').textContent = (CFG.tecnicas||[]).length;
+}
+
+/* ========= COBROS ========= */
+function guardarCobro(){
+  const nombre = $('#cNombre').value.trim();
+  const tel = $('#cTel').value.replace(/\D/g,'');
+  const monto = Number($('#cMonto').value||0);
+  const metodo = $('#cMetodo').value;
+  const ref = $('#cRef').value.trim();
+  const concepto = $('#cConcepto').value.trim();
+  if(!nombre || !monto){ alert('Cliente y monto son obligatorios.'); return; }
+  const reg = { id:uid(), nombre, tel, monto, metodo, ref, concepto, ts: nowISO() };
+  const arr = getCobros(); arr.push(reg); setCobros(arr);
+  renderCobros(); renderDashboard(); renderRendimiento();
+
+  // WhatsApp cobro
+  const msg = `Recibo ${CFG.negocio}\nCliente: ${nombre}\nConcepto: ${concepto}\nMétodo: ${metodo}\nMonto: $${toUSD(monto)}\nRef: ${ref||'N/A'}`;
+  const wa = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+  const a = $('#waCobroLink'); a.href = wa; a.classList.remove('hidden');
+  alert('Cobro guardado. Puedes exportar el recibo o enviarlo por WhatsApp.');
+}
+function renderCobros(){
+  const list = $('#listCobros'); list.innerHTML='';
+  const arr = getCobros().sort((a,b)=> new Date(b.ts)-new Date(a.ts)).slice(0,10);
+  if(!arr.length){ list.innerHTML='<div class="mini">Sin cobros recientes.</div>'; return; }
+  arr.forEach(c=>{
+    const div = document.createElement('div'); div.className='item';
+    div.innerHTML = `<div><b>${c.nombre}</b> <span class="mini">$${toUSD(c.monto)} • ${c.metodo} • ${new Date(c.ts).toLocaleString()}</span></div>`;
+    const b = document.createElement('button'); b.className='btn'; b.textContent='Recibo';
+    b.onclick=()=> prepararRecibo(c);
+    div.appendChild(b);
+    list.appendChild(div);
+  });
+}
+function prepararRecibo(c){
+  // llenar plantilla de impresión
+  $('#reciboLogo').src = CFG.logo||'';
+  $('#reciboNegocio').textContent = CFG.negocio||'Salón';
+  $('#reciboFooter').textContent = CFG.footer||'';
+  $('#reciboFecha').textContent = new Date(c.ts).toLocaleString();
+  $('#reciboNo').textContent = c.id.toUpperCase();
+  $('#reciboCliente').textContent = c.nombre;
+  $('#reciboTel').textContent = c.tel||'';
+  $('#reciboConcepto').textContent = c.concepto||'';
+  $('#reciboMetodo').textContent = c.metodo||'';
+  $('#reciboRef').textContent = c.ref||'N/A';
+  $('#reciboTotal').textContent = toUSD(c.monto);
+  imprimirRecibo();
+}
+function imprimirRecibo(){
+  const win = window.open('','_blank');
+  const html = `
+  <html><head><title>Recibo</title>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  </head><body>${$('#reciboPrint').innerHTML}
+  <script>window.print();<\/script></body></html>`;
+  win.document.write(html); win.document.close();
+}
+
+/* ========= CUADRE ========= */
+function abrirCuadre(){
+  CFG.sheetURL = $('#cfgSheetURL').value.trim()||CFG.sheetURL; saveCfg();
+  if(CFG.sheetURL) window.open(CFG.sheetURL,'_blank'); else alert('Agrega la URL del Google Sheet en Configuración.');
+}
+function abrirForm(){
+  CFG.formURL = $('#cfgFormURL').value.trim()||CFG.formURL; saveCfg();
+  if(CFG.formURL) window.open(CFG.formURL,'_blank'); else alert('Agrega la URL del Google Form en Configuración.');
+}
+
+/* ========= UTIL / INIT ========= */
+function phonePretty(n){ return n.replace(/\D/g,'').replace(/(\d{3})(\d{3})(\d{4})/,'($1) $2-$3'); }
+
+function init(){
+  loadAll();
+  applyBrand();
+  $('#todayStr').textContent = new Date().toLocaleDateString();
+  // Vista inicial
+  goView('login');
+}
+init();
+
+/* ========= RECORDATORIO SUAVE EN ARRANQUE =========
+   Si hay citas dentro de 15 minutos desde ahora, sugiere enviar mensaje.
+*/
+(function softReminder(){
+  const now = Date.now();
+  const soon = getCitas().filter(c=>{
+    const t = new Date(c.fecha).getTime();
+    const dt = t - now;
+    return c.estado==='programada' && dt>0 && dt<=15*60*1000;
+  });
+  if(soon.length){
+    if(confirm(`Tienes ${soon.length} cita(s) dentro de 15 min. ¿Ir a Recordatorios?`)){
+      goView('rendimiento');
+    }
+  }
+})();
+
+</script>
+</body>
+</html>
