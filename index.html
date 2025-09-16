@@ -1,0 +1,1158 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Salón Pro – Citas & Servicios</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#111111">
+  <style>
+    :root{
+      --color-bg:#0f0f12;
+      --color-surface:#17171c;
+      --color-topbar:#111114;
+      --color-accent:#7c5cff;
+      --color-accent-2:#00d1b2;
+      --color-text:#f5f6f9;
+      --color-muted:#a8aab7;
+      --color-danger:#ff4d4f;
+      --color-warning:#ffb020;
+      --color-success:#22c55e;
+      --font-ui: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      --radius:14px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --btn-bg:#23232b;
+      --btn-bg-hover:#2d2d37;
+      --scrollbar:#2a2a32;
+      --scrollbar-thumb:#3a3a46;
+      --btn-height:56px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-ui);
+      background-image: var(--bg-image, none);
+      background-size:cover;background-attachment:fixed;background-position:center center;
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar{width:12px;height:12px;background:var(--scrollbar)}
+    ::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:10px}
+    /* Topbar */
+    .topbar{
+      position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;
+      padding:10px 14px;background:var(--color-topbar);border-bottom:1px solid #26262f;
+    }
+    .menu-btn,.back-btn,.dash-btn{
+      height:40px;min-width:40px;border:none;border-radius:10px;background:var(--btn-bg);
+      color:var(--color-text);display:inline-flex;align-items:center;justify-content:center;
+      cursor:pointer;padding:0 12px;font-weight:600
+    }
+    .menu-btn:hover,.back-btn:hover,.dash-btn:hover{background:var(--btn-bg-hover)}
+    .brand{
+      display:flex;align-items:center;gap:10px;margin-left:6px;font-weight:800;letter-spacing:.3px
+    }
+    .brand img{height:34px;width:34px;object-fit:contain;border-radius:7px;background:#fff}
+    .container{max-width:1160px;margin:18px auto;padding:0 16px 80px}
+    /* Auth */
+    .auth{
+      max-width:440px;margin:10vh auto;background:var(--color-surface);padding:26px;border-radius:var(--radius);box-shadow:var(--shadow)
+    }
+    .auth h1{margin:0 0 8px}
+    .field{display:flex;flex-direction:column;margin:12px 0}
+    .field label{font-size:.9rem;color:var(--color-muted);margin-bottom:6px}
+    .input, select, textarea{
+      background:#1e1e25;border:1px solid #2b2b36;border-radius:12px;color:var(--color-text);
+      padding:12px 14px;font-size:15px;outline:none
+    }
+    .input:focus, select:focus, textarea:focus{border-color:var(--color-accent)}
+    .btn{
+      height:var(--btn-height);border-radius:14px;border:none;background:var(--btn-bg);color:var(--color-text);
+      padding:0 18px;font-weight:700;cursor:pointer
+    }
+    .btn:hover{background:var(--btn-bg-hover)}
+    .btn.primary{background:var(--color-accent)}
+    .btn.primary:hover{filter:brightness(1.05)}
+    .btn.success{background:var(--color-success)}
+    .btn.warn{background:var(--color-warning)}
+    .btn.danger{background:var(--color-danger)}
+    .grid{display:grid;gap:14px}
+    .grid.cols-2{grid-template-columns: repeat(2, minmax(0,1fr))}
+    .grid.cols-3{grid-template-columns: repeat(3, minmax(0,1fr))}
+    .card{
+      background:var(--color-surface);border:1px solid #262632;border-radius:16px;padding:18px;box-shadow:var(--shadow)
+    }
+    .tools-list .tool{
+      display:flex;align-items:center;gap:14px;background:var(--color-surface);border:1px solid #262632;border-radius:16px;
+      padding:14px;min-height:72px;cursor:pointer
+    }
+    .tools-list .tool:hover{transform:translateY(-1px);transition:.2s;outline:1px solid #323246}
+    .icon{font-size:24px;min-width:28px;text-align:center}
+    .hidden{display:none !important}
+    .section{margin-top:18px}
+    .section h2{margin:0 0 12px}
+    .inline{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{border-bottom:1px solid #2a2a36;padding:10px;text-align:left}
+    .pill{padding:4px 10px;border-radius:999px;font-size:.8rem;background:#242433}
+    .accent{color:var(--color-accent)}
+    .muted{color:var(--color-muted)}
+    .right{margin-left:auto}
+    .spacer{height:8px}
+    .notice{padding:12px;border:1px dashed #3a3a4e;border-radius:12px;color:#d0d2e0}
+    .danger-text{color:var(--color-danger)}
+    canvas{width:100%;max-width:100%;background:#101015;border-radius:12px}
+    .tag{display:inline-block;padding:4px 10px;background:#1d1d28;border:1px solid #2b2b36;border-radius:999px;margin:2px}
+    .print-area{background:white;color:black;padding:32px;font-family:ui-sans-serif, system-ui;max-width:800px;margin:0 auto}
+    .print-area h1,.print-area h2,.print-area h3{color:#111}
+    .print-area .split{display:flex;justify-content:space-between}
+    @media print{
+      body{background:white}
+      .no-print{display:none !important}
+      .print-area{box-shadow:none;border:none}
+    }
+  </style>
+</head>
+<body>
+  <!-- TOPBAR -->
+  <div class="topbar no-print">
+    <button class="menu-btn" id="btnMenu" title="Menú">☰</button>
+    <div class="brand">
+      <img id="logoImg" alt="Logo">
+      <div>
+        <div id="salonName">Mi Salón</div>
+        <small class="muted">Dashboard</small>
+      </div>
+    </div>
+    <div class="right inline">
+      <button class="dash-btn" id="btnDashboard">Dashboard</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- PANTALLA LOGIN -->
+    <section id="authView" class="auth card">
+      <div class="inline" style="justify-content:space-between;align-items:center">
+        <h1>Bienvenido</h1>
+        <img id="loginLogo" style="height:40px;width:40px;border-radius:8px;background:#fff;object-fit:contain">
+      </div>
+      <p class="muted">Acceso con usuario y contraseña. (Admin por defecto: <code>admin / admin</code>)</p>
+      <div class="field">
+        <label>Usuario</label>
+        <input id="loginUser" class="input" placeholder="usuario">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input id="loginPass" class="input" type="password" placeholder="••••••••">
+      </div>
+      <div class="inline">
+        <button class="btn primary" id="btnLogin">Entrar</button>
+        <button class="btn" id="btnSeed">Cargar demo</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="notice">Logo, nombres y colores son editables en Configuración (solo Administrador).</div>
+    </section>
+
+    <!-- MENÚ PRINCIPAL -->
+    <section id="menuView" class="hidden">
+      <h2>Herramientas</h2>
+      <div id="toolsList" class="tools-list grid">
+        <!-- Cada item abre una “hoja” nueva -->
+        <div class="tool" data-target="citasView"><div class="icon">📅</div><div><b>Agendar Citas</b><div class="muted">Crear cita + enlace a Google Calendar y WhatsApp</div></div></div>
+        <div class="tool" data-target="fechasView"><div class="icon">🗓️</div><div><b>Ver Fechas Disponibles</b><div class="muted">Por técnica/servicio</div></div></div>
+        <div class="tool" data-target="noshowView"><div class="icon">⛔</div><div><b>No Show</b><div class="muted">Listado y vínculo al calendario</div></div></div>
+        <div class="tool" data-target="recordatoriosView"><div class="icon">⏰</div><div><b>Recordatorios 24h</b><div class="muted">WhatsApp automático</div></div></div>
+        <div class="tool" data-target="facturasView"><div class="icon">💳</div><div><b>Cobros & Facturas</b><div class="muted">ATH Móvil, cash, tarjeta + PDF</div></div></div>
+        <div class="tool admin-only" data-target="rendimientoView"><div class="icon">📊</div><div><b>Rendimiento</b><div class="muted">Gráfica por técnica</div></div></div>
+        <div class="tool admin-only" data-target="cuadreView"><div class="icon">📑</div><div><b>Hoja de Cuadre Diario</b><div class="muted">Google Sheets</div></div></div>
+        <div class="tool admin-only" data-target="configView"><div class="icon">⚙️</div><div><b>Configuración</b><div class="muted">Colores, logos, permisos, backups</div></div></div>
+        <div class="tool" data-target="exportView"><div class="icon">📦</div><div><b>Exportar & Backups</b><div class="muted">Historiales y copias</div></div></div>
+      </div>
+    </section>
+
+    <!-- HOJA: CITAS -->
+    <section id="citasView" class="hidden card section">
+      <div class="inline">
+        <button class="back-btn" data-back>← Regresar al menú</button>
+        <h2>Agendar Cita</h2>
+      </div>
+      <div class="grid cols-3">
+        <div class="field"><label>Cliente</label><input id="citaCliente" class="input" placeholder="Nombre y Apellido"></div>
+        <div class="field"><label>Teléfono</label><input id="citaTelefono" class="input" placeholder="+1 787 ..."></div>
+        <div class="field"><label>Técnica/Estilista</label><select id="citaTecnica"></select></div>
+        <div class="field"><label>Servicio</label><select id="citaServicio"></select></div>
+        <div class="field"><label>Fecha</label><input id="citaFecha" class="input" type="date"></div>
+        <div class="field"><label>Hora</label><input id="citaHora" class="input" type="time"></div>
+      </div>
+      <div class="inline">
+        <button class="btn primary" id="btnCrearCita">Crear cita</button>
+        <button class="btn" id="btnWhatsCita">WhatsApp</button>
+        <button class="btn" id="btnGoogleCal">Abrir Google Calendar</button>
+      </div>
+      <div class="spacer"></div>
+      <h3>Agenda del día</h3>
+      <div class="inline">
+        <input id="filtroFechaAgenda" class="input" type="date">
+        <select id="filtroTecnicaAgenda" class="input"></select>
+        <button class="btn" id="btnBuscarAgenda">Buscar</button>
+      </div>
+      <table class="table" id="tablaAgenda"></table>
+    </section>
+
+    <!-- HOJA: FECHAS DISPONIBLES -->
+    <section id="fechasView" class="hidden card section">
+      <div class="inline">
+        <button class="back-btn" data-back>← Regresar al menú</button>
+        <h2>Fechas disponibles</h2>
+      </div>
+      <div class="inline">
+        <label class="muted">Técnica</label>
+        <select id="dispTecnica" class="input"></select>
+        <label class="muted">Fecha</label>
+        <input id="dispFecha" class="input" type="date">
+        <label class="muted">Horario</label>
+        <input id="dispInicio" class="input" type="time" value="09:00">
+        <input id="dispFin" class="input" type="time" value="18:00">
+        <input id="dispCada" class="input" type="number" value="60" min="10" step="5" style="max-width:120px">
+        <button class="btn" id="btnVerDisponibles">Ver</button>
+      </div>
+      <div id="listaDisponibles" class="section"></div>
+    </section>
+
+    <!-- HOJA: NO SHOW -->
+    <section id="noshowView" class="hidden card section">
+      <div class="inline">
+        <button class="back-btn" data-back>← Regresar al menú</button>
+        <h2>No Show</h2>
+      </div>
+      <div id="listaNoShow"></div>
+    </section>
+
+    <!-- HOJA: RECORDATORIOS -->
+    <section id="recordatoriosView" class="hidden card section">
+      <div class="inline">
+        <button class="back-btn" data-back>← Regresar al menú</button>
+        <h2>Recordatorios 24h</h2>
+      </div>
+      <p class="muted">Genera mensajes de WhatsApp para citas que ocurren entre 24 y 30 horas desde ahora.</p>
+      <div id="listaRecordatorios"></div>
+      <button class="btn" id="btnGenerarRecordatorios">Generar ahora</button>
+    </section>
+
+    <!-- HOJA: FACTURAS -->
+    <section id="facturasView" class="hidden card section">
+      <div class="inline">
+        <button class="back-btn" data-back>← Regresar al menú</button>
+        <h2>Cobros & Facturas</h2>
+      </div>
+      <div class="grid cols-3">
+        <div class="field"><label>Cliente</label><input id="facCliente" class="input"></div>
+        <div class="field"><label>Teléfono</label><input id="facTelefono" class="input"></div>
+        <div class="field"><label>Técnica</label><select id="facTecnica"></select></div>
+      </div>
+      <div class="field">
+        <label>Servicios</label>
+        <div id="serviciosLista" class="inline"></div>
+        <div class="inline">
+          <input id="nuevoServicioNombre" class="input" placeholder="Nuevo servicio">
+          <input id="nuevoServicioPrecio" class="input" type="number" placeholder="Precio">
+          <button class="btn" id="btnAddServicio">Añadir</button>
+        </div>
+      </div>
+      <div class="section card">
+        <h3>Detalle</h3>
+        <div id="detalleItems"></div>
+        <div class="inline" style="justify-content:flex-end;margin-top:8px">
+          <div class="tag">Subtotal: $<span id="subtotal">0.00</span></div>
+          <div class="tag">Impuesto (%): <input id="impuesto" class="input" type="number" value="0" style="width:90px"></div>
+          <div class="tag">Total: $<span id="total">0.00</span></div>
+        </div>
+      </div>
+      <div class="inline">
+        <label class="muted">Método de pago</label>
+        <select id="facMetodo" class="input">
+          <option>ATH Móvil</option>
+          <option>Tarjeta</option>
+          <option>Cash</option>
+        </select>
+        <button class="btn success" id="btnGuardarCobro">Guardar cobro</button>
+        <button class="btn" id="btnWhatsFactura">WhatsApp</button>
+        <button class="btn" id="btnImprimirFactura">Imprimir / PDF</button>
+      </div>
+      <div class="spacer"></div>
+      <h3>Historial de facturas</h3>
+      <table class="table" id="tablaFacturas"></table>
+    </section>
+
+    <!-- HOJA: RENDIMIENTO -->
+    <section id="rendimientoView" class="hidden card section">
+      <div class="inline">
+        <button class="back-btn" data-back>← Regresar al menú</button>
+        <h2>Rendimiento</h2>
+      </div>
+      <div class="inline">
+        <label>Rango</label>
+        <select id="rendRango" class="input">
+          <option value="dia">Diario</option>
+          <option value="semana">Semanal</option>
+          <option value="mes">Mensual</option>
+        </select>
+        <button class="btn" id="btnVerRendimiento">Actualizar</button>
+      </div>
+      <canvas id="grafRend" height="240"></canvas>
+      <div id="legendRend" class="section"></div>
+    </section>
+
+    <!-- HOJA: CUADRE -->
+    <section id="cuadreView" class="hidden card section">
+      <div class="inline">
+        <button class="back-btn" data-back>← Regresar al menú</button>
+        <h2>Hoja de Cuadre Diario</h2>
+      </div>
+      <p class="muted">Conectado a Google Sheets: <a href="https://docs.google.com/spreadsheets/d/1-MxlLqk6BLkYiThYros0F3DLCef0jd5tV-pUilMk3iM/edit" target="_blank">Abrir hoja</a></p>
+      <div class="notice">
+        Webhook Apps Script (opcional): configura un URL en <b>Configuración → Integraciones</b> para enviar cada cobro/cita automáticamente a tu hoja (POST JSON).
+      </div>
+      <table class="table" id="tablaCuadre"></table>
+    </section>
+
+    <!-- HOJA: CONFIG -->
+    <section id="configView" class="hidden card section">
+      <div class="inline">
+        <button class="back-btn" data-back>← Regresar al menú</button>
+        <h2>Configuración</h2>
+      </div>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>Identidad</h3>
+          <div class="field"><label>Nombre del salón</label><input id="cfgSalon" class="input"></div>
+          <div class="field"><label>Logo (PNG/JPG)</label><input id="cfgLogo" type="file" accept="image/*"></div>
+          <div class="field"><label>Imagen de fondo (opcional, transparente o foto)</label><input id="cfgBg" type="file" accept="image/*"></div>
+          <button class="btn" id="btnResetBg">Quitar fondo</button>
+        </div>
+        <div class="card">
+          <h3>Colores</h3>
+          <div class="grid cols-2">
+            <div class="field"><label>Fondo</label><input id="colBg" type="color" value="#0f0f12" class="input"></div>
+            <div class="field"><label>Topbar</label><input id="colTop" type="color" value="#111114" class="input"></div>
+            <div class="field"><label>Superficie</label><input id="colSurf" type="color" value="#17171c" class="input"></div>
+            <div class="field"><label>Texto</label><input id="colText" type="color" value="#f5f6f9" class="input"></div>
+            <div class="field"><label>Acento</label><input id="colAccent" type="color" value="#7c5cff" class="input"></div>
+            <div class="field"><label>Acento 2</label><input id="colAccent2" type="color" value="#00d1b2" class="input"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Usuarios & Permisos</h3>
+          <div class="field inline">
+            <input id="usrNombre" class="input" placeholder="usuario">
+            <input id="usrPass" class="input" placeholder="contraseña">
+            <select id="usrRol" class="input"><option>admin</option><option>regular</option></select>
+            <button class="btn" id="btnAddUser">Añadir</button>
+          </div>
+          <div id="listaUsuarios"></div>
+        </div>
+        <div class="card">
+          <h3>Integraciones</h3>
+          <div class="field"><label>Ubicación para WhatsApp</label><input id="cfgUbicacion" class="input" placeholder="Dirección o enlace de Maps"></div>
+          <div class="field"><label>Webhook Google Sheets (Apps Script Web App)</label><input id="cfgWebhook" class="input" placeholder="https://script.google.com/macros/s/.../exec"></div>
+          <div class="notice">Estructura de POST: {"tipo":"cobro"|"cita","payload":{...}}. Ejemplo en Exportar & Backups.</div>
+        </div>
+        <div class="card">
+          <h3>Estética</h3>
+          <div class="field"><label>Fuente UI</label>
+            <select id="cfgFont" class="input">
+              <option value='"Inter",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>Inter (default)</option>
+              <option value='system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>Sistema</option>
+              <option value='Georgia, "Times New Roman", serif'>Serif</option>
+              <option value='"Courier New", monospace'>Monospace</option>
+            </select>
+          </div>
+          <div class="field"><label>Orden del menú (arrastrar)</label></div>
+          <ul id="ordenMenu" style="list-style:none;padding:0;margin:0"></ul>
+        </div>
+      </div>
+      <div class="inline">
+        <button class="btn" id="btnGuardarConfig">Guardar</button>
+        <button class="btn" id="btnExportConfig">Exportar Config JSON</button>
+        <input id="importConfigFile" type="file" accept="application/json" class="hidden">
+        <button class="btn" id="btnImportConfig">Importar Config JSON</button>
+      </div>
+    </section>
+
+    <!-- HOJA: EXPORTAR/BACKUPS -->
+    <section id="exportView" class="hidden card section">
+      <div class="inline">
+        <button class="back-btn" data-back>← Regresar al menú</button>
+        <h2>Exportar & Backups</h2>
+      </div>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>Historiales</h3>
+          <button class="btn" data-export="citas">Exportar historial de citas (JSON)</button>
+          <button class="btn" data-print="citas">Imprimir/PDF citas</button>
+          <button class="btn" data-export="cobros">Exportar historial de cobros (JSON)</button>
+          <button class="btn" data-print="cobros">Imprimir/PDF cobros</button>
+          <button class="btn" data-export="logins">Exportar historial de login (JSON)</button>
+          <button class="btn" data-export="rendimiento">Exportar rendimiento (JSON)</button>
+        </div>
+        <div class="card">
+          <h3>Backups</h3>
+          <button class="btn" id="btnBackupDia">Backup diario (JSON)</button>
+          <button class="btn" id="btnBackupSem">Backup semanal (JSON)</button>
+          <button class="btn" id="btnBackupMes">Backup mensual (JSON)</button>
+          <button class="btn" id="btnBackupAnio">Backup anual (JSON)</button>
+          <div class="spacer"></div>
+          <button class="btn" id="btnBackupFull">Backup configuración completa (JSON)</button>
+          <input id="importFullFile" type="file" accept="application/json" class="hidden">
+          <button class="btn" id="btnImportFull">Restaurar desde backup JSON</button>
+          <button class="btn" id="btnPrintBackup">Imprimir backup (PDF)</button>
+        </div>
+        <div class="card">
+          <h3>Ejemplo payload Webhook</h3>
+          <pre style="white-space:pre-wrap;background:#0f0f14;border:1px solid #262636;border-radius:12px;padding:12px;font-size:.85rem">
+POST { cfgWebhook }
+Content-Type: application/json
+
+{"tipo":"cobro","payload":{
+ "fecha":"2025-09-15","hora":"14:20","cliente":"Ana",
+ "telefono":"+1787...","tecnica":"Lina","metodo":"ATH Móvil",
+ "servicio":"Color","monto":75.00}}
+          </pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ÁREA DE IMPRESIÓN -->
+    <section id="printRoot" class="print-area hidden"></section>
+
+  </div>
+
+<script>
+/* ==========================
+   UTILIDADES & STORAGE
+========================== */
+const LS = {
+  get(k, def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def }catch{ return def } },
+  set(k, v){ localStorage.setItem(k, JSON.stringify(v)); },
+  del(k){ localStorage.removeItem(k); }
+};
+const state = {
+  user:null,
+  cfg: LS.get('cfg', {
+    salon:'Mi Salón',
+    colors:{bg:'#0f0f12',surface:'#17171c',top:'#111114',text:'#f5f6f9',accent:'#7c5cff',accent2:'#00d1b2'},
+    font: '"Inter",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif',
+    ubicacion:'',
+    webhook:'',
+    logo:null,
+    bg:null,
+    tecnicas:['Lina','Sofía','Camila'],
+    servicios: [
+      {nombre:'Corte', precio:25},
+      {nombre:'Color', precio:75},
+      {nombre:'Blowout', precio:35}
+    ],
+    menuOrder:['citasView','fechasView','noshowView','recordatoriosView','facturasView','rendimientoView','cuadreView','configView','exportView']
+  }),
+  users: LS.get('users', [
+    {u:'admin',p:'admin',rol:'admin'},
+    {u:'caja',p:'1234',rol:'regular'}
+  ]),
+  citas: LS.get('citas', []), // {id, cliente, telefono, tecnica, servicio, fecha, hora, status:'activa'|'no-show'|'completada'}
+  cobros: LS.get('cobros', []), // {id, fecha, hora, cliente, telefono, tecnica, items:[{s,p}], subtotal, impuesto, total, metodo}
+  logins: LS.get('logins', []),
+};
+function saveAll(){
+  LS.set('cfg', state.cfg);
+  LS.set('users', state.users);
+  LS.set('citas', state.citas);
+  LS.set('cobros', state.cobros);
+  LS.set('logins', state.logins);
+}
+function byId(id){ return document.getElementById(id); }
+function todayStr(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function timeStr(){ const d=new Date(); return d.toTimeString().slice(0,5); }
+function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+function fmtMoney(n){ return (Number(n)||0).toFixed(2); }
+function qs(sel,root=document){ return root.querySelector(sel); }
+function qsa(sel,root=document){ return [...root.querySelectorAll(sel)]; }
+function setTheme(){
+  document.documentElement.style.setProperty('--color-bg', state.cfg.colors.bg);
+  document.documentElement.style.setProperty('--color-surface', state.cfg.colors.surface);
+  document.documentElement.style.setProperty('--color-topbar', state.cfg.colors.top);
+  document.documentElement.style.setProperty('--color-text', state.cfg.colors.text);
+  document.documentElement.style.setProperty('--color-accent', state.cfg.colors.accent);
+  document.documentElement.style.setProperty('--color-accent-2', state.cfg.colors.accent2);
+  document.documentElement.style.setProperty('--font-ui', state.cfg.font);
+  if(state.cfg.bg){
+    document.body.style.setProperty('--bg-image', `url(${state.cfg.bg})`);
+  }else{
+    document.body.style.removeProperty('--bg-image');
+  }
+  const logoImg = byId('logoImg'); const loginLogo = byId('loginLogo');
+  if(state.cfg.logo){ logoImg.src = state.cfg.logo; loginLogo.src=state.cfg.logo; } else { logoImg.src=loginLogo.src=''; }
+  byId('salonName').textContent = state.cfg.salon;
+}
+function dataURL(file){ return new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); }); }
+function openView(id){
+  // hide all sheets
+  qsa('section').forEach(s=> s.id==='authView'||s.id==='menuView'?null:s.classList.add('hidden'));
+  if(id==='menuView'){ byId('menuView').classList.remove('hidden'); window.scrollTo(0,0); return; }
+  const el = byId(id); if(!el) return;
+  el.classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+function ensureAdminOnly(){
+  const isAdmin = state.user?.rol==='admin';
+  qsa('.admin-only').forEach(n => n.classList.toggle('hidden', !isAdmin));
+}
+
+/* ==========================
+   INICIO / LOGIN
+========================== */
+function renderLogin(){
+  byId('authView').classList.remove('hidden');
+  byId('menuView').classList.add('hidden');
+}
+function renderMenu(){
+  byId('authView').classList.add('hidden');
+  const list = byId('toolsList');
+  // Orden del menú
+  list.innerHTML='';
+  state.cfg.menuOrder.forEach(view=>{
+    const node = qsa('.tool').find(t => t.dataset.target===view);
+    if(node) list.appendChild(node);
+  });
+  ensureAdminOnly();
+  byId('menuView').classList.remove('hidden');
+}
+function doLogin(u,p){
+  const found = state.users.find(x=>x.u===u && x.p===p);
+  if(found){
+    state.user = {u:found.u,rol:found.rol};
+    state.logins.push({id:uid(), user:found.u, rol:found.rol, fecha:todayStr(), hora:timeStr()});
+    saveAll();
+    renderMenu();
+  }else{
+    alert('Usuario o contraseña incorrectos.');
+  }
+}
+/* Seed demo */
+byId('btnSeed').onclick = ()=>{
+  if(!confirm('Cargar datos de demostración?')) return;
+  state.citas = [
+    {id:uid(), cliente:'Ana Ruiz', telefono:'+1787...', tecnica:'Lina', servicio:'Color', fecha:todayStr(), hora:'10:00', status:'activa'},
+    {id:uid(), cliente:'Carla M', telefono:'+1787...', tecnica:'Sofía', servicio:'Corte', fecha:todayStr(), hora:'11:00', status:'activa'},
+  ];
+  state.cobros = [
+    {id:uid(), fecha:todayStr(), hora:'12:10', cliente:'Ana Ruiz', telefono:'+1787...', tecnica:'Lina',
+     items:[{s:'Color',p:75},{s:'Blowout',p:35}], subtotal:110, impuesto:0, total:110, metodo:'ATH Móvil'}
+  ];
+  saveAll(); alert('Demo cargada.');
+};
+byId('btnLogin').onclick = ()=> doLogin(byId('loginUser').value.trim(), byId('loginPass').value);
+byId('btnDashboard').onclick = ()=> renderMenu();
+byId('btnMenu').onclick = ()=> renderMenu();
+
+/* ==========================
+   NAVEGACIÓN
+========================== */
+qsa('[data-back]').forEach(b => b.addEventListener('click', ()=> openView('menuView')));
+qsa('.tool').forEach(t => t.addEventListener('click', ()=> openView(t.dataset.target)));
+
+/* ==========================
+   CONFIGURACIÓN
+========================== */
+function hydrateConfigUI(){
+  byId('cfgSalon').value = state.cfg.salon;
+  byId('cfgUbicacion').value = state.cfg.ubicacion||'';
+  byId('cfgWebhook').value = state.cfg.webhook||'';
+  byId('colBg').value = state.cfg.colors.bg;
+  byId('colSurf').value = state.cfg.colors.surface;
+  byId('colTop').value = state.cfg.colors.top;
+  byId('colText').value = state.cfg.colors.text;
+  byId('colAccent').value = state.cfg.colors.accent;
+  byId('colAccent2').value = state.cfg.colors.accent2;
+  byId('cfgFont').value = state.cfg.font;
+  // Usuarios
+  renderUsuarios();
+  // Técnicas/servicios en selects
+  refreshTecnicasServicios();
+  // Orden del menú
+  const ul = byId('ordenMenu'); ul.innerHTML='';
+  state.cfg.menuOrder.forEach(view=>{
+    const li = document.createElement('li');
+    li.textContent = view; li.className='tag'; li.draggable=true; li.dataset.view=view;
+    ul.appendChild(li);
+  });
+  ul.querySelectorAll('li').forEach(li=>{
+    li.addEventListener('dragstart', e=> e.dataTransfer.setData('text/plain', li.dataset.view));
+    ul.addEventListener('dragover', e=> e.preventDefault());
+    ul.addEventListener('drop', e=>{
+      e.preventDefault();
+      const v = e.dataTransfer.getData('text/plain');
+      const dragged = [...ul.children].find(x=>x.dataset.view===v);
+      ul.insertBefore(dragged, li);
+      state.cfg.menuOrder = [...ul.children].map(x=>x.dataset.view);
+      saveAll();
+    });
+  });
+}
+function renderUsuarios(){
+  const box = byId('listaUsuarios'); box.innerHTML='';
+  state.users.forEach((u,i)=>{
+    const row = document.createElement('div'); row.className='inline';
+    row.innerHTML = `<div class="tag">${u.u}</div><div class="tag">${u.rol}</div>
+    <button class="btn danger" data-i="${i}">Eliminar</button>`;
+    box.appendChild(row);
+  });
+  qsa('#listaUsuarios .btn.danger').forEach(btn=>{
+    btn.onclick = ()=>{
+      const i = +btn.dataset.i;
+      if(state.users[i]?.u==='admin') return alert('No puedes eliminar el usuario admin.');
+      state.users.splice(i,1); saveAll(); renderUsuarios();
+    };
+  });
+}
+byId('btnAddUser').onclick = ()=>{
+  const u = byId('usrNombre').value.trim();
+  const p = byId('usrPass').value.trim();
+  const rol = byId('usrRol').value;
+  if(!u || !p) return alert('Usuario y contraseña requeridos.');
+  if(state.users.some(x=>x.u===u)) return alert('Ese usuario ya existe.');
+  state.users.push({u,p,rol}); saveAll(); renderUsuarios();
+};
+['colBg','colSurf','colTop','colText','colAccent','colAccent2','cfgFont'].forEach(id=>{
+  byId(id).addEventListener('input', ()=>{
+    state.cfg.colors.bg = byId('colBg').value;
+    state.cfg.colors.surface = byId('colSurf').value;
+    state.cfg.colors.top = byId('colTop').value;
+    state.cfg.colors.text = byId('colText').value;
+    state.cfg.colors.accent = byId('colAccent').value;
+    state.cfg.colors.accent2 = byId('colAccent2').value;
+    state.cfg.font = byId('cfgFont').value;
+    saveAll(); setTheme();
+  });
+});
+byId('cfgLogo').addEventListener('change', async e=>{
+  const f = e.target.files[0]; if(!f) return;
+  state.cfg.logo = await dataURL(f); saveAll(); setTheme();
+});
+byId('cfgBg').addEventListener('change', async e=>{
+  const f = e.target.files[0]; if(!f) return;
+  state.cfg.bg = await dataURL(f); saveAll(); setTheme();
+});
+byId('btnResetBg').onclick = ()=>{ state.cfg.bg=null; saveAll(); setTheme(); };
+byId('cfgSalon').addEventListener('input', e=>{ state.cfg.salon=e.target.value; saveAll(); setTheme();});
+byId('cfgUbicacion').addEventListener('input', e=>{ state.cfg.ubicacion=e.target.value; saveAll();});
+byId('cfgWebhook').addEventListener('input', e=>{ state.cfg.webhook=e.target.value; saveAll();});
+byId('btnGuardarConfig').onclick = ()=>{ saveAll(); alert('Configuración guardada'); };
+byId('btnExportConfig').onclick = ()=> downloadJSON({cfg:state.cfg}, `config-${todayStr()}.json`);
+byId('btnImportConfig').onclick = ()=> byId('importConfigFile').click();
+byId('importConfigFile').addEventListener('change', async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const txt = await f.text(); const obj = JSON.parse(txt);
+  if(obj?.cfg){ state.cfg = obj.cfg; saveAll(); setTheme(); hydrateConfigUI(); alert('Configuración importada.'); }
+});
+
+/* ==========================
+   TÉCNICAS / SERVICIOS
+========================== */
+function refreshTecnicasServicios(){
+  // técnicas en selects
+  qsa('#citaTecnica,#filtroTecnicaAgenda,#dispTecnica,#facTecnica').forEach(sel=>{
+    sel.innerHTML = state.cfg.tecnicas.map(t=>`<option>${t}</option>`).join('');
+    if(sel.id==='filtroTecnicaAgenda') sel.insertAdjacentHTML('afterbegin','<option value="">(todas)</option>');
+  });
+  // servicios
+  const srvSel = byId('citaServicio');
+  srvSel.innerHTML = state.cfg.servicios.map(s=>`<option>${s.nombre}</option>`).join('');
+  // botones de servicios para factura
+  const cont = byId('serviciosLista'); cont.innerHTML='';
+  state.cfg.servicios.forEach(s=>{
+    const b = document.createElement('button');
+    b.className='btn'; b.textContent=`${s.nombre} ($${fmtMoney(s.precio)})`;
+    b.onclick=()=> addItemFactura(s.nombre, s.precio);
+    cont.appendChild(b);
+  });
+}
+byId('btnAddServicio').onclick = ()=>{
+  const n = byId('nuevoServicioNombre').value.trim();
+  const p = Number(byId('nuevoServicioPrecio').value);
+  if(!n || !p) return alert('Servicio y precio requeridos.');
+  state.cfg.servicios.push({nombre:n, precio:p});
+  saveAll(); refreshTecnicasServicios();
+  byId('nuevoServicioNombre').value=''; byId('nuevoServicioPrecio').value='';
+};
+
+/* ==========================
+   CITAS
+========================== */
+function citaKey(c){ return [c.fecha,c.hora,c.tecnica,(c.cliente||'').toLowerCase().trim()].join('|'); }
+function existeDuplicada(c){
+  return state.citas.some(x => x.status!=='cancelada'
+    && x.fecha===c.fecha && x.hora===c.hora && x.tecnica===c.tecnica
+    && (x.cliente||'').toLowerCase().trim()===(c.cliente||'').toLowerCase().trim());
+}
+byId('btnCrearCita').onclick = ()=>{
+  const c = {
+    id: uid(),
+    cliente: byId('citaCliente').value.trim(),
+    telefono: byId('citaTelefono').value.trim(),
+    tecnica: byId('citaTecnica').value,
+    servicio: byId('citaServicio').value,
+    fecha: byId('citaFecha').value,
+    hora: byId('citaHora').value,
+    status:'activa'
+  };
+  if(!c.cliente || !c.fecha || !c.hora) return alert('Cliente, fecha y hora son requeridos.');
+  if(existeDuplicada(c)) return alert('No se permite duplicar citas con misma persona/hora/día/técnica.');
+  state.citas.push(c); saveAll(); alert('Cita creada.');
+  renderAgenda();
+};
+function renderAgenda(){
+  const f = byId('filtroFechaAgenda').value || todayStr();
+  const t = byId('filtroTecnicaAgenda').value || null;
+  const rows = state.citas.filter(c=> c.fecha===f && (!t || c.tecnica===t))
+    .sort((a,b)=> a.hora.localeCompare(b.hora))
+    .map(c=>`<tr>
+      <td><b>${c.hora}</b></td>
+      <td>${c.cliente}<div class="muted">${c.telefono||''}</div></td>
+      <td>${c.tecnica}</td>
+      <td>${c.servicio}</td>
+      <td><span class="pill ${c.status==='no-show'?'danger-text':''}">${c.status}</span></td>
+      <td class="right">
+        <button class="btn" data-act="whats" data-id="${c.id}">WA</button>
+        <button class="btn" data-act="gcal" data-id="${c.id}">GCal</button>
+        <button class="btn" data-act="edit" data-id="${c.id}">Re-agendar</button>
+        <button class="btn warn" data-act="ns" data-id="${c.id}">No Show</button>
+        <button class="btn danger" data-act="del" data-id="${c.id}">Eliminar</button>
+      </td>
+    </tr>`).join('');
+  byId('tablaAgenda').innerHTML = `<tr><th>Hora</th><th>Cliente</th><th>Técnica</th><th>Servicio</th><th>Estado</th><th></th></tr>${rows || '<tr><td colspan="6" class="muted">Sin citas</td></tr>'}`;
+  qsa('#tablaAgenda [data-act]').forEach(b=> b.onclick = ()=> agendaAction(b.dataset.act, b.dataset.id));
+}
+byId('btnBuscarAgenda').onclick = renderAgenda;
+byId('filtroFechaAgenda').value = todayStr();
+
+function agendaAction(act, id){
+  const c = state.citas.find(x=>x.id===id); if(!c) return;
+  if(act==='del'){
+    if(!confirm('Eliminar cita?')) return;
+    c.status='cancelada';
+    saveAll(); renderAgenda();
+  }
+  if(act==='ns'){
+    if(!confirm('Marcar como No Show?')) return;
+    c.status='no-show'; saveAll(); renderAgenda(); renderNoShow();
+  }
+  if(act==='edit'){
+    const nf = prompt('Nueva fecha (YYYY-MM-DD):', c.fecha) || c.fecha;
+    const nh = prompt('Nueva hora (HH:MM):', c.hora) || c.hora;
+    const copy = {...c, fecha:nf, hora:nh};
+    if(existeDuplicada(copy)) return alert('Esa reprogramación duplica una cita existente.');
+    c.fecha=nf; c.hora=nh; saveAll(); renderAgenda();
+  }
+  if(act==='whats'){ openWhatsCita(c); }
+  if(act==='gcal'){ openGoogleCalendar(c); }
+}
+function openWhatsCita(c){
+  const salon = state.cfg.salon;
+  const msg = `Hola ${c.cliente}, desde ${salon} confirmamos tu cita para ${c.servicio} el ${c.fecha} a las ${c.hora}. Ubicación: ${state.cfg.ubicacion||''}`;
+  const url = `https://wa.me/${cleanPhone(c.telefono)}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+function openGoogleCalendar(c){
+  const start = c.fecha.replace(/-/g,'')+'T'+c.hora.replace(':','')+'00';
+  const end = start; // se puede mejorar con duración; por ahora igual
+  const text = encodeURIComponent(`${state.cfg.salon} – ${c.servicio} (${c.tecnica})`);
+  const details = encodeURIComponent(`Cliente: ${c.cliente} Tel: ${c.telefono}`);
+  const location = encodeURIComponent(state.cfg.ubicacion||'');
+  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${start}/${end}&details=${details}&location=${location}`;
+  window.open(url,'_blank');
+}
+function cleanPhone(p){ return (p||'').replace(/\D/g,''); }
+
+/* Fechas disponibles */
+byId('btnVerDisponibles').onclick = ()=>{
+  const tec = byId('dispTecnica').value;
+  const fecha = byId('dispFecha').value || todayStr();
+  const ini = byId('dispInicio').value || '09:00';
+  const fin = byId('dispFin').value || '18:00';
+  const cada = parseInt(byId('dispCada').value || '60',10);
+  const slots = [];
+  let h = ini;
+  while(h <= fin){
+    const ocupado = state.citas.some(c=> c.fecha===fecha && c.tecnica===tec && c.hora===h && c.status!=='cancelada');
+    if(!ocupado) slots.push(h);
+    h = addMinutes(h, cada);
+  }
+  byId('listaDisponibles').innerHTML = slots.length
+    ? slots.map(s=>`<button class="btn" data-slot="${s}">${s}</button>`).join(' ')
+    : '<div class="notice">No hay espacios disponibles con los parámetros seleccionados.</div>';
+  qsa('#listaDisponibles [data-slot]').forEach(b=>{
+    b.onclick = ()=>{
+      // pre-llenar en Agendar
+      openView('citasView');
+      byId('citaFecha').value = fecha;
+      byId('citaHora').value = b.dataset.slot;
+      byId('citaTecnica').value = tec;
+      window.scrollTo(0,0);
+    };
+  });
+};
+function addMinutes(hhmm, min){
+  const [hh,mm] = hhmm.split(':').map(Number);
+  const d = new Date(); d.setHours(hh,mm+min,0,0);
+  const H = String(d.getHours()).padStart(2,'0');
+  const M = String(d.getMinutes()).padStart(2,'0');
+  return `${H}:${M}`;
+}
+
+/* No Show */
+function renderNoShow(){
+  const list = state.citas.filter(c=> c.status==='no-show').sort((a,b)=> (a.fecha+a.hora).localeCompare(b.fecha+b.hora));
+  byId('listaNoShow').innerHTML = list.length ? list.map(c=>`
+    <div class="inline card" style="align-items:center;justify-content:space-between">
+      <div>
+        <b>${c.cliente}</b> – ${c.servicio} con ${c.tecnica}<br>
+        <span class="muted">${c.fecha} ${c.hora}</span>
+      </div>
+      <div class="inline">
+        <button class="btn" data-gcal="${c.id}">Ver en Calendar</button>
+        <button class="btn" data-wa="${c.id}">WhatsApp</button>
+      </div>
+    </div>
+  `).join('') : '<div class="notice">Sin registros</div>';
+  qsa('#listaNoShow [data-gcal]').forEach(b=> b.onclick=()=> openGoogleCalendar(state.citas.find(x=>x.id===b.dataset.gcal)));
+  qsa('#listaNoShow [data-wa]').forEach(b=> b.onclick=()=> openWhatsCita(state.citas.find(x=>x.id===b.dataset.wa)));
+}
+
+/* Recordatorios 24h */
+byId('btnGenerarRecordatorios').onclick = ()=>{
+  const now = new Date();
+  const soon = new Date(now.getTime()+30*60*60*1000);
+  const near = new Date(now.getTime()+24*60*60*1000);
+  const list = state.citas.filter(c=>{
+    const dt = new Date(`${c.fecha}T${c.hora}:00`);
+    return dt>=near && dt<=soon && c.status==='activa';
+  });
+  byId('listaRecordatorios').innerHTML = list.length ? list.map(c=>{
+    const msg = `Recordatorio: ${c.cliente}, tu cita en ${state.cfg.salon} para ${c.servicio} es el ${c.fecha} a las ${c.hora}. Ubicación: ${state.cfg.ubicacion||''}`;
+    const wa = `https://wa.me/${cleanPhone(c.telefono)}?text=${encodeURIComponent(msg)}`;
+    return `<div class="inline card"><div><b>${c.cliente}</b> – ${c.fecha} ${c.hora}</div>
+    <a class="btn" target="_blank" href="${wa}">Enviar por WhatsApp</a></div>`;
+  }).join('') : '<div class="notice">No hay citas para recordar en las próximas ~24-30h.</div>';
+};
+
+/* ==========================
+   FACTURAS / COBROS
+========================== */
+let detalleFact = [];
+function addItemFactura(s, p){
+  detalleFact.push({s, p:Number(p)});
+  renderDetalleFactura();
+}
+function renderDetalleFactura(){
+  const box = byId('detalleItems'); box.innerHTML='';
+  detalleFact.forEach((it,i)=>{
+    const row = document.createElement('div'); row.className='inline';
+    row.innerHTML = `<div class="tag">${it.s}</div><div class="tag">$${fmtMoney(it.p)}</div>
+    <button class="btn danger" data-i="${i}">Quitar</button>`;
+    box.appendChild(row);
+  });
+  qsa('#detalleItems .danger').forEach(b=> b.onclick = ()=>{ detalleFact.splice(+b.dataset.i,1); renderDetalleFactura(); });
+  const subtotal = detalleFact.reduce((a,b)=>a+b.p,0);
+  const imp = Number(byId('impuesto').value||0);
+  const total = subtotal*(1+imp/100);
+  byId('subtotal').textContent = fmtMoney(subtotal);
+  byId('total').textContent = fmtMoney(total);
+}
+byId('impuesto').addEventListener('input', renderDetalleFactura);
+
+byId('btnGuardarCobro').onclick = async ()=>{
+  const cliente = byId('facCliente').value.trim();
+  const telefono = byId('facTelefono').value.trim();
+  const tecnica = byId('facTecnica').value;
+  const metodo = byId('facMetodo').value;
+  if(!cliente || !detalleFact.length) return alert('Cliente y al menos un servicio.');
+  const subtotal = Number(byId('subtotal').textContent);
+  const impuesto = Number(byId('impuesto').value||0);
+  const total = Number(byId('total').textContent);
+  const rec = {
+    id: uid(), fecha: todayStr(), hora: timeStr(), cliente, telefono, tecnica,
+    items: JSON.parse(JSON.stringify(detalleFact)), subtotal, impuesto, total, metodo
+  };
+  state.cobros.push(rec); saveAll(); detalleFact=[]; renderDetalleFactura(); renderFacturas(); renderCuadre();
+  alert('Cobro guardado.');
+  // enviar webhook
+  if(state.cfg.webhook){
+    try{
+      await fetch(state.cfg.webhook, {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({tipo:'cobro', payload: rec})});
+    }catch(e){ console.warn('Webhook error', e); }
+  }
+};
+function renderFacturas(){
+  byId('tablaFacturas').innerHTML = `<tr><th>Fecha</th><th>Cliente</th><th>Técnica</th><th>Método</th><th>Total</th><th></th></tr>`+
+    state.cobros.slice().reverse().map(f=>`
+      <tr>
+        <td>${f.fecha} ${f.hora}</td>
+        <td>${f.cliente}<div class="muted">${f.telefono||''}</div></td>
+        <td>${f.tecnica}</td>
+        <td>${f.metodo}</td>
+        <td>$${fmtMoney(f.total)}</td>
+        <td class="right">
+          <button class="btn" data-print="${f.id}">PDF</button>
+          <button class="btn" data-wa="${f.id}">WhatsApp</button>
+        </td>
+      </tr>
+    `).join('');
+  qsa('#tablaFacturas [data-print]').forEach(b=> b.onclick=()=> printFactura(state.cobros.find(x=>x.id===b.dataset.print)));
+  qsa('#tablaFacturas [data-wa]').forEach(b=> b.onclick=()=> waFactura(state.cobros.find(x=>x.id===b.dataset.wa)));
+}
+function waFactura(f){
+  const txt = `Factura ${state.cfg.salon}\nCliente: ${f.cliente}\nTotal: $${fmtMoney(f.total)}\nFecha: ${f.fecha} ${f.hora}\nGracias por preferirnos. Ubicación: ${state.cfg.ubicacion||''}`;
+  const url = `https://wa.me/${cleanPhone(f.telefono)}?text=${encodeURIComponent(txt)}`;
+  window.open(url,'_blank');
+}
+byId('btnImprimirFactura').onclick = ()=> alert('Usa el botón PDF dentro del historial para una factura específica.');
+byId('btnWhatsFactura').onclick = ()=> alert('Usa el botón WhatsApp dentro del historial para enviar la factura.');
+
+function printFactura(f){
+  const root = byId('printRoot');
+  root.innerHTML = `
+  <div>
+    <div class="split">
+      <div>
+        <h1>${state.cfg.salon}</h1>
+        <div>${state.cfg.ubicacion||''}</div>
+        <div class="muted">Tel: ${f.telefono||''}</div>
+      </div>
+      <div style="text-align:right">
+        ${state.cfg.logo?`<img src="${state.cfg.logo}" style="height:64px;width:64px;object-fit:contain;border-radius:12px">`:''}
+        <div><b>Factura</b> #${f.id.slice(-6)}</div>
+        <div>${f.fecha} ${f.hora}</div>
+      </div>
+    </div>
+    <hr>
+    <div><b>Cliente:</b> ${f.cliente}</div>
+    <table style="width:100%;margin-top:10px;border-collapse:collapse">
+      <tr><th style="text-align:left;border-bottom:1px solid #ddd">Servicio</th><th style="text-align:right;border-bottom:1px solid #ddd">Precio</th></tr>
+      ${f.items.map(i=>`<tr><td>${i.s}</td><td style="text-align:right">$${fmtMoney(i.p)}</td></tr>`).join('')}
+      <tr><td style="text-align:right"><b>Subtotal</b></td><td style="text-align:right">$${fmtMoney(f.subtotal)}</td></tr>
+      <tr><td style="text-align:right"><b>Impuesto (${fmtMoney(f.impuesto)}%)</b></td><td style="text-align:right">$${fmtMoney(f.subtotal*f.impuesto/100)}</td></tr>
+      <tr><td style="text-align:right"><b>Total</b></td><td style="text-align:right"><b>$${fmtMoney(f.total)}</b></td></tr>
+    </table>
+    <div style="margin-top:16px">Método de pago: ${f.metodo}</div>
+    <div style="margin-top:10px">¡Gracias por su visita!</div>
+  </div>`;
+  root.classList.remove('hidden');
+  window.print();
+  root.classList.add('hidden');
+}
+
+/* Auto a Cuadre */
+function renderCuadre(){
+  const rows = state.cobros.slice().reverse().map(f=>`
+    <tr>
+      <td>${f.fecha} ${f.hora}</td>
+      <td>${f.cliente}</td>
+      <td>${f.tecnica}</td>
+      <td>${f.metodo}</td>
+      <td>$${fmtMoney(f.total)}</td>
+      <td>${f.items.map(i=>i.s).join(', ')}</td>
+    </tr>
+  `).join('');
+  byId('tablaCuadre').innerHTML = `<tr><th>Fecha</th><th>Cliente</th><th>Técnica</th><th>Método</th><th>Total</th><th>Servicios</th></tr>${rows||''}`;
+}
+
+/* ==========================
+   RENDIMIENTO (gráfica simple)
+========================== */
+function verRend(){
+  const rango = byId('rendRango').value;
+  // agrupar por técnica
+  const now = new Date(); const data = {};
+  state.cfg.tecnicas.forEach(t=> data[t]=0);
+  state.cobros.forEach(c=>{
+    const d = new Date(`${c.fecha}T00:00:00`);
+    if(rango==='dia'){
+      if(c.fecha===todayStr()) data[c.tecnica]+=c.total;
+    }else if(rango==='semana'){
+      const diff = (now - d)/(1000*60*60*24);
+      if(diff<=7) data[c.tecnica]+=c.total;
+    }else{
+      const diff = (now - d)/(1000*60*60*24);
+      if(diff<=31) data[c.tecnica]+=c.total;
+    }
+  });
+  drawBarChart('grafRend', data);
+  const leg = byId('legendRend'); leg.innerHTML='';
+  Object.entries(data).forEach(([k,v])=> leg.insertAdjacentHTML('beforeend', `<span class="tag">${k}: $${fmtMoney(v)}</span>`));
+}
+byId('btnVerRendimiento').onclick = verRend;
+
+function drawBarChart(canvasId, obj){
+  const c = byId(canvasId); const ctx = c.getContext('2d');
+  const labels = Object.keys(obj); const vals = Object.values(obj);
+  const W = c.width = c.clientWidth; const H = c.height = 240;
+  ctx.clearRect(0,0,W,H);
+  const max = Math.max(1, ...vals);
+  const barW = W/(labels.length*1.5);
+  labels.forEach((lab,i)=>{
+    const val = vals[i];
+    const h = (val/max)*(H-40);
+    const x = 20 + i*(barW*1.5);
+    const y = H-30-h;
+    // barras con colores de acento
+    const grad = ctx.createLinearGradient(0,y,0,y+h);
+    grad.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--color-accent'));
+    grad.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--color-accent-2'));
+    ctx.fillStyle = grad;
+    ctx.fillRect(x,y,barW,h);
+    ctx.fillStyle = '#cfd1db';
+    ctx.textAlign='center'; ctx.font='12px sans-serif';
+    ctx.fillText(lab, x+barW/2, H-10);
+    ctx.fillText(`$${fmtMoney(val)}`, x+barW/2, y-6);
+  });
+}
+
+/* ==========================
+   EXPORTAR / BACKUP
+========================== */
+function downloadJSON(obj, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)], {type:'application/json'}));
+  a.download = name; a.click();
+}
+qsa('#exportView [data-export]').forEach(b=>{
+  b.onclick = ()=>{
+    const what = b.dataset.export;
+    const data = {citas:state.citas, cobros:state.cobros, logins:state.logins};
+    const payload = what==='citas'? state.citas : what==='cobros'? state.cobros : what==='logins'? state.logins : what==='rendimiento'? resumenRendimiento(): {};
+    downloadJSON(payload, `${what}-${todayStr()}.json`);
+  };
+});
+function resumenRendimiento(){
+  const out = {};
+  state.cfg.tecnicas.forEach(t=>{
+    out[t] = {
+      diario: sumCobros(t,1),
+      semanal: sumCobros(t,7),
+      mensual: sumCobros(t,31)
+    };
+  });
+  return out;
+}
+function sumCobros(tec, days){
+  const now = new Date();
+  return state.cobros.filter(c=>{
+    const d=new Date(`${c.fecha}T00:00:00`);
+    return c.tecnica===tec && (now-d)/(1000*60*60*24)<=days;
+  }).reduce((a,b)=>a+b.total,0);
+}
+qsa('#exportView [data-print]').forEach(b=>{
+  b.onclick = ()=>{
+    const what = b.dataset.print;
+    const root = byId('printRoot');
+    let html = `<h2>${what==='citas'?'Historial de citas':'Historial de cobros'}</h2><table style="width:100%;border-collapse:collapse">`;
+    if(what==='citas'){
+      html += '<tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Técnica</th><th>Servicio</th><th>Estado</th></tr>'+
+        state.citas.map(c=>`<tr><td>${c.fecha}</td><td>${c.hora}</td><td>${c.cliente}</td><td>${c.tecnica}</td><td>${c.servicio}</td><td>${c.status}</td></tr>`).join('');
+    }else{
+      html += '<tr><th>Fecha</th><th>Cliente</th><th>Técnica</th><th>Método</th><th>Total</th></tr>'+
+        state.cobros.map(f=>`<tr><td>${f.fecha} ${f.hora}</td><td>${f.cliente}</td><td>${f.tecnica}</td><td>${f.metodo}</td><td>$${fmtMoney(f.total)}</td></tr>`).join('');
+    }
+    html+='</table>';
+    root.innerHTML = html; root.classList.remove('hidden'); window.print(); root.classList.add('hidden');
+  };
+});
+byId('btnBackupDia').onclick = ()=> downloadJSON(makeBackup(1), `backup-diario-${todayStr()}.json`);
+byId('btnBackupSem').onclick = ()=> downloadJSON(makeBackup(7), `backup-semanal-${todayStr()}.json`);
+byId('btnBackupMes').onclick = ()=> downloadJSON(makeBackup(31), `backup-mensual-${todayStr()}.json`);
+byId('btnBackupAnio').onclick = ()=> downloadJSON(makeBackup(366), `backup-anual-${todayStr()}.json`);
+byId('btnBackupFull').onclick = ()=> downloadJSON({cfg:state.cfg, users:state.users, citas:state.citas, cobros:state.cobros, logins:state.logins}, `backup-full-${todayStr()}.json`);
+byId('btnImportFull').onclick = ()=> byId('importFullFile').click();
+byId('importFullFile').addEventListener('change', async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const txt = await f.text(); const obj = JSON.parse(txt);
+  if(obj?.citas && obj?.cobros){
+    state.cfg = obj.cfg||state.cfg;
+    state.users = obj.users||state.users;
+    state.citas = obj.citas; state.cobros = obj.cobros; state.logins = obj.logins||state.logins;
+    saveAll(); setTheme(); hydrateConfigUI(); renderFacturas(); renderAgenda(); renderCuadre(); alert('Backup restaurado.');
+  }else alert('Archivo inválido.');
+});
+byId('btnPrintBackup').onclick = ()=>{
+  const root = byId('printRoot');
+  root.innerHTML = `<h2>Backup (resumen)</h2>
+  <p>Citas: ${state.citas.length} | Cobros: ${state.cobros.length} | Logins: ${state.logins.length}</p>`;
+  root.classList.remove('hidden'); window.print(); root.classList.add('hidden');
+};
+function makeBackup(days){
+  const now=new Date();
+  const citas = state.citas.filter(c=> (now - new Date(`${c.fecha}T00:00:00`))/(1000*60*60*24)<=days);
+  const cobros = state.cobros.filter(c=> (now - new Date(`${c.fecha}T00:00:00`))/(1000*60*60*24)<=days);
+  return {cfg:state.cfg, citas, cobros};
+}
+
+/* ==========================
+   LISTENERS INICIALES
+========================== */
+byId('btnGoogleCal').onclick = ()=>{
+  const c = {
+    cliente: byId('citaCliente').value.trim(),
+    telefono: byId('citaTelefono').value.trim(),
+    tecnica: byId('citaTecnica').value,
+    servicio: byId('citaServicio').value,
+    fecha: byId('citaFecha').value || todayStr(),
+    hora: byId('citaHora').value || timeStr()
+  };
+  openGoogleCalendar(c);
+};
+byId('btnWhatsCita').onclick = ()=>{
+  const c = {
+    cliente: byId('citaCliente').value.trim()||'Cliente',
+    telefono: byId('citaTelefono').value.trim(),
+    tecnica: byId('citaTecnica').value,
+    servicio: byId('citaServicio').value,
+    fecha: byId('citaFecha').value || todayStr(),
+    hora: byId('citaHora').value || timeStr()
+  };
+  openWhatsCita(c);
+};
+
+/* ==========================
+   INICIALIZACIÓN
+========================== */
+function init(){
+  setTheme();
+  hydrateConfigUI();
+  renderAgenda();
+  renderFacturas();
+  renderNoShow();
+  renderCuadre();
+  verRend();
+  ensureAdminOnly();
+  // Autenticación
+  renderLogin();
+  // PWA
+  if('serviceWorker' in navigator){ navigator.serviceWorker.register('./service-worker.js'); }
+}
+init();
+
+/* ==========================
+   MENÚ / ACCESOS
+========================== */
+document.addEventListener('click', e=>{
+  // bloquear vistas admin a usuarios regulares
+  if(e.target.closest('.tool')){
+    const tgt = e.target.closest('.tool').dataset.target;
+    const adminOnly = e.target.closest('.tool').classList.contains('admin-only');
+    if(adminOnly && state.user?.rol!=='admin'){ e.preventDefault(); alert('Acceso solo para administradores.'); return; }
+  }
+});
+</script>
+</body>
+</html>
